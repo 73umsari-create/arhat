@@ -23,7 +23,7 @@ button{font:inherit;font-size:12px;color:var(--fg);background:var(--glass);borde
 <div class="ui" id="title">淸心會 · 寂滅宮<small>호흡에 마음이 함께 하다</small></div>
 
 <div class="ui" id="timer">00:00</div><div class="ui" id="pn"></div>
-<div class="ui" id="bar"><button id="bell">종 켜기</button><button id="swb" style="display:none">검술</button><button id="sit">앉기</button><button id="qi">기운 보내기</button><span id="stp"><button id="dn">−</button><b id="iv">30초 마다</b><button id="up">+</button></span></div>
+<div class="ui" id="bar"><button id="bell">종 켜기</button><button id="swb" style="display:none">검술</button><button id="sit">앉기</button><button id="qi">마음 모으기</button><span id="stp"><button id="dn">−</button><b id="iv">30초 마다</b><button id="up">+</button></span></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const W=()=>innerWidth,H=()=>innerHeight;
@@ -299,7 +299,7 @@ aura.rotation.x=Math.PI/2;aura.position.set(0,.05,4.6);scene.add(aura);
 const ripples=[];
 function qi(){const r=new THREE.Mesh(new THREE.RingGeometry(.9,1,48),new THREE.MeshBasicMaterial({color:0x9fd0ff,transparent:true,opacity:.8,side:THREE.DoubleSide}));
  r.rotation.x=-Math.PI/2;r.position.set(monks[0].g.position.x,.06,monks[0].g.position.z);r.t=0;scene.add(r);ripples.push(r)}
-document.getElementById('qi').onclick=()=>{qi();chime(660)};
+document.getElementById('qi').onclick=()=>{startGather()};
 
 // camera orbit (drag)
 let th=0,ph=.42,rad=9.5,drag=null;
@@ -353,6 +353,7 @@ const YP_MWD=[
  [1,.98,-.1,0,0,-3.1,0,3.1,0,0,0,0,.5,0]];
 let pnLast='';const pnEl=document.getElementById('pn');
 function pickPose(m,t){
+ if(m===monks[0]&&m.gt!==undefined&&t<m.gt)return 0;
  if(m.pp>=0&&t<m.nt)return m.pp;
  const used=new Set(monks.filter(o=>o!==m&&o.pp>=0).map(o=>o.pp)),opts=[];
  for(let i=0;i<YP.length;i++)if(!used.has(i)&&i!==m.pp)opts.push(i);
@@ -426,6 +427,27 @@ document.getElementById('bell').onclick=e=>{try{if(!bc)bc=new (window.AudioConte
 function setIv(d){ivSec=Math.max(30,Math.min(3600,ivSec+d*30));document.getElementById('iv').textContent=(ivSec>=60?Math.floor(ivSec/60)+'분 ':'')+(ivSec%60?ivSec%60+'초':'')+' 마다';nextBell=curT+ivSec}
 document.getElementById('dn').onclick=()=>setIv(-1);document.getElementById('up').onclick=()=>setIv(1);
 let swVis=false;const swBtn=document.getElementById('swb');
+// 마음 모으기
+const gaP=[],gaR=[],gRG=new THREE.RingGeometry(.9,1.0,48),gSG=new THREE.SphereGeometry(.07,8,6),gLG=new THREE.SphereGeometry(1,16,12);let gGlow=null,gAcc=0,gRingT=0;
+const gMat=()=>new THREE.MeshBasicMaterial({color:0xffe6a0,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+function chestPos(m,v){return v.set(m.g.position.x,m.g.position.y+m.body.position.y+.6,m.g.position.z)}
+function startGather(){const m=monks[0];m.gs=curT;m.gt=curT+4.2;gAcc=0;gRingT=.7;if(!gGlow){gGlow=new THREE.Mesh(gLG,gMat());gGlow.visible=false;scene.add(gGlow)}}
+function updGather(dt){
+ const m=monks[0];if(m.gt===undefined)return;
+ const c=chestPos(m,new THREE.Vector3()),on=curT<m.gt;
+ if(on){gAcc+=dt*14;
+  while(gAcc>=1){gAcc-=1;if(curT>m.gt-1.2)continue;const a=Math.random()*6.283,b=Math.acos(2*Math.random()-1),r=3+Math.random()*1.5,mesh=new THREE.Mesh(gSG,gMat());
+   mesh.position.set(c.x+r*Math.sin(b)*Math.cos(a),c.y+r*Math.cos(b)*.6,c.z+r*Math.sin(b)*Math.sin(a));scene.add(mesh);gaP.push({mesh,t:0,dur:1.2+Math.random()*.6,s:mesh.position.clone()})}
+  gRingT+=dt;if(gRingT>=.8&&curT<m.gt-1.5){gRingT=0;const mesh=new THREE.Mesh(gRG,gMat());mesh.rotation.x=-Math.PI/2;scene.add(mesh);gaR.push({mesh,t:0})}}
+ for(let i=gaP.length-1;i>=0;i--){const q=gaP[i];q.t+=dt;const f=Math.min(1,q.t/q.dur);
+  if(f>=1){scene.remove(q.mesh);q.mesh.material.dispose();gaP.splice(i,1);continue}
+  const e=f*f;q.mesh.position.set(q.s.x+(c.x-q.s.x)*e,q.s.y+(c.y-q.s.y)*e,q.s.z+(c.z-q.s.z)*e);q.mesh.scale.setScalar(1.3-.8*f);q.mesh.material.opacity=f<.15?f/.15:(f<.85?1:(1-f)/.15)}
+ for(let i=gaR.length-1;i>=0;i--){const q=gaR[i];q.t+=dt;const f=q.t/1.5;
+  if(f>=1){scene.remove(q.mesh);q.mesh.material.dispose();gaR.splice(i,1);continue}
+  q.mesh.position.copy(c);q.mesh.scale.setScalar(4-3.6*f);q.mesh.material.opacity=.7*Math.sin(Math.PI*f)}
+ if(gGlow){const g=(curT-m.gs)/4.2,k=on?Math.min(1,g*1.3):Math.max(0,1-(curT-m.gt)/.8);
+  gGlow.visible=k>0;gGlow.position.copy(c);gGlow.scale.setScalar(.06+.34*Math.min(1,g*1.3)*(on?1:k));gGlow.material.opacity=.6*k*(.8+.2*Math.sin(curT*8))}
+}
 // 검기(劍氣) 효과
 const qis=[],qGeo=new THREE.RingGeometry(.7,1.0,24,1,Math.PI/2-1,2),rGeo=new THREE.RingGeometry(.85,1.0,48);
 function spawnQi(m,roll){
@@ -497,9 +519,11 @@ function loop(){
  const dt=Math.min(t-lastT,.05);lastT=t;
  monks.forEach((o,i)=>(i===0&&o.state!=='sit')?upd(o,dt,t,k):yoga(o,dt,t));
  tigers.forEach(o=>tig(o,dt,t));animals.forEach(o=>ani(o,dt,t));updQi(dt);
+ {const p0=monks[0];if(p0.gt!==undefined&&curT<p0.gt&&p0.state==='idle'){p0.arms[0].rotation.set(-1.3,0,.5);p0.arms[1].rotation.set(-1.3,0,-.5)}}
+ updGather(dt);
  aura.position.set(monks[0].g.position.x,.05,monks[0].g.position.z);aura.scale.setScalar(1+.12*k);
  {const out=Math.hypot(monks[0].g.position.x,monks[0].g.position.z)>15;if(out!==swVis){swVis=out;swBtn.style.display=out?'':'none'}}
- {const pp=monks[0].state==='sit'?monks[0].pp:-1,nm=pp>=0?YN[pp]:'';if(nm!==pnLast){pnLast=nm;pnEl.textContent=nm}}aura.material.opacity=.6+.4*k;
+ {const pp=monks[0].state==='sit'?monks[0].pp:-1,gg=monks[0].gt!==undefined&&curT<monks[0].gt,nm=gg?'마음 모으기':(pp>=0?YN[pp]:'');if(nm!==pnLast){pnLast=nm;pnEl.textContent=nm}}aura.material.opacity=.6+.4*k;
  lights.forEach((L,i)=>L.intensity=1.1+Math.sin(t*7+i*2)*.15+Math.random()*.1);
  disc.rotation.z=-t*.05;
  const pa=sg.attributes.position.array;
