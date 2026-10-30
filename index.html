@@ -10,7 +10,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:
 canvas{display:block;position:fixed;inset:0;width:100%;height:100%}
 .ui{position:fixed;left:0;right:0;text-align:center;pointer-events:none;z-index:2}
 #title{top:calc(env(safe-area-inset-top,0px) + 14px);font-size:15px;letter-spacing:.3em;color:#000}
-#title small{display:block;font-size:11px;letter-spacing:.15em;opacity:.7;margin-top:4px;color:var(--gold)}
+#title small{display:block;font-size:11px;letter-spacing:.15em;opacity:.7;margin-top:4px;color:#000}
 #pn{bottom:calc(env(safe-area-inset-bottom,0px) + 132px);font-size:17px;letter-spacing:.25em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.6)}
 #timer{bottom:calc(env(safe-area-inset-bottom,0px) + 104px);font-size:13px;opacity:.75}
 #bar{bottom:calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;flex-wrap:wrap;gap:8px;padding:0 10px;justify-content:center;pointer-events:auto}
@@ -259,21 +259,30 @@ function monk(robeColor){
  bm(new THREE.CylinderGeometry(.3,.46,.85,16),robe,0,.42,0);
  const gr=new THREE.MeshStandardMaterial({color:0xffffff});const arms=[],lp=[];let hs=null;
  [-1,1].forEach(s=>{const ar=new THREE.Group();ar.position.set(s*.34,.8,0);const sl=new THREE.Mesh(new THREE.CylinderGeometry(.12,.2,.6,12),robe);sl.position.y=-.3;const hd=new THREE.Mesh(new THREE.SphereGeometry(.09,10,10),skin);hd.position.y=-.65;ar.add(sl,hd);body.add(ar);arms.push(ar);
- if(s===1){hs=new THREE.Group();hs.position.y=-.65;hs.visible=false;[[new THREE.CylinderGeometry(.03,.03,.2,8),0x7a1e1e,0],[new THREE.BoxGeometry(.2,.035,.07),0xd4b46a,-.12],[new THREE.BoxGeometry(.05,.95,.015),0xdfe6ee,-.6]].forEach(([geo,c,y])=>{const mm=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:c,metalness:.5,roughness:.35}));mm.position.y=y;hs.add(mm)});ar.add(hs)}const lg=new THREE.Group();lg.position.set(s*.15,.5,0);const lm=new THREE.Mesh(new THREE.CylinderGeometry(.09,.1,.5,10),robe);lm.position.y=-.25;const sh=new THREE.Mesh(new THREE.BoxGeometry(.14,.08,.26),dark);sh.position.set(0,-.46,.06);lg.add(lm,sh);lg.visible=false;g.add(lg);lp.push(lg);const ss=new THREE.Mesh(new THREE.BoxGeometry(.16,.08,.26),dark);ss.position.set(s*.2,-.1,.65);legs.add(ss);
+ if(s===1){hs=new THREE.Group();hs.position.y=-.65;hs.visible=false;[[new THREE.CylinderGeometry(.03,.03,.2,8),0x7a1e1e,0],[new THREE.BoxGeometry(.2,.035,.07),0xd4b46a,-.12],[new THREE.BoxGeometry(.05,.95,.015),0xdfe6ee,-.6]].forEach(([geo,c,y])=>{const mm=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:c,metalness:.5,roughness:.35}));mm.position.y=y;hs.add(mm)});ar.add(hs)}
+ if(s===-1){const hw=new THREE.Group();hw.position.y=-.65;const h2=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.5,6),new THREE.MeshStandardMaterial({color:0x7a4a22}));h2.position.y=-.25;hw.add(h2);const tf=new THREE.Mesh(new THREE.ConeGeometry(.17,.6,10),new THREE.MeshStandardMaterial({color:0xf8f8f4,roughness:1}));tf.position.y=-.8;hw.add(tf);ar.add(hw)}const lg=new THREE.Group();lg.position.set(s*.15,.5,0);const lm=new THREE.Mesh(new THREE.CylinderGeometry(.09,.1,.5,10),robe);lm.position.y=-.25;const sh=new THREE.Mesh(new THREE.BoxGeometry(.14,.08,.26),dark);sh.position.set(0,-.46,.06);lg.add(lm,sh);lg.visible=false;g.add(lg);lp.push(lg);const ss=new THREE.Mesh(new THREE.BoxGeometry(.16,.08,.26),dark);ss.position.set(s*.2,-.1,.65);legs.add(ss);
   const rb=new THREE.Mesh(new THREE.BoxGeometry(.05,.34,.02),gr);rb.position.set(s*.05,.55,.385);rb.rotation.z=s*.12;body.add(rb)});
  bm(new THREE.BoxGeometry(.32,.04,.02),gr,0,.72,.33);
  bm(new THREE.SphereGeometry(.26,16,16),skin,0,1.12,0);
- bm(new THREE.SphereGeometry(.13,10,10),dark,0,1.46,0);
- const hm=new THREE.MeshStandardMaterial({color:0x101014,roughness:.5});const brim=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.03,24),hm);brim.position.set(0,1.37,0);body.add(brim);const crown=new THREE.Mesh(new THREE.CylinderGeometry(.13,.15,.26,20),hm);crown.position.set(0,1.5,0);body.add(crown);
+ const hk=new THREE.MeshStandardMaterial({color:0x14141a,roughness:.7,side:THREE.DoubleSide}),hf=new THREE.MeshStandardMaterial({color:0xcdb98a,roughness:1});
+ const cap=new THREE.Mesh(new THREE.ConeGeometry(.24,.5,16),hk);cap.position.set(0,1.52,-.02);cap.rotation.x=-.12;body.add(cap);
+ const capb=new THREE.Mesh(new THREE.CylinderGeometry(.23,.23,.07,20),hk);capb.position.set(0,1.26,0);body.add(capb);
+ [-1,1].forEach(s2=>{const f=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),hf);f.scale.set(.025,.24,.06);f.position.set(s2*.07,1.68,.13);f.rotation.set(.3,0,0);body.add(f)});
+
+
+
+
+ const sash=new THREE.Mesh(new THREE.TorusGeometry(.41,.045,6,24),new THREE.MeshStandardMaterial({color:0xffffff}));sash.position.set(0,.32,0);sash.rotation.x=Math.PI/2;body.add(sash);
  const swd=new THREE.Group();swd.position.set(0,.45,-.42);swd.rotation.z=.6;body.add(swd);
  const swm=(geo,mat,y)=>{const m=new THREE.Mesh(geo,mat);m.position.y=y;swd.add(m)};
  swm(new THREE.BoxGeometry(.07,.95,.05),new THREE.MeshStandardMaterial({color:0x3a2a1c,roughness:.6}),0);
  swm(new THREE.BoxGeometry(.2,.035,.07),gold,.5);
  swm(new THREE.CylinderGeometry(.03,.03,.22,8),new THREE.MeshStandardMaterial({color:0x7a1e1e}),.62);
  swm(new THREE.SphereGeometry(.045,8,8),gold,.76);
+ swm(new THREE.CylinderGeometry(.035,.015,.38,6),new THREE.MeshStandardMaterial({color:0xc02a2a}),.98);
  return {g,body,legs,skirt,arms,lp,swd,hs};
 }
-const robes=[0x9fd8cb,0xa8ddd0,0x97d2c4,0xa4dacd,0x9fd8cb,0xa2d9cc,0x97d2c4,0xa8ddd0];
+const robes=[0xf7f4ec,0xf2efe6,0xfaf8f2,0xeeebe0,0xf7f4ec,0xf4f1e8,0xfaf8f2,0xeeebe0];
 const monks=[];
 for(let i=0;i<8;i++){
  const a=i*Math.PI/4,x=Math.sin(a)*4.6,z=Math.cos(a)*4.6;
